@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>食物列表</title>
+    <style>
+        /* ===================== 基础 ===================== */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+            background-color: #fff8f0;
+            background-image:
+                radial-gradient(circle at 10% -5%, #ffe3c4 0%, rgba(255, 227, 196, 0) 45%),
+                radial-gradient(circle at 92% 4%, #ffedd5 0%, rgba(255, 237, 213, 0) 42%);
+            background-repeat: no-repeat;
+        }
+
+        body {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 48px 24px 80px;
+            font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei",
+                         "Helvetica Neue", Arial, sans-serif;
+            font-size: 15px;
+            line-height: 1.5;
+            color: #5c4a3d;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        ::selection {
+            background: #fdba74;
+            color: #7c2d12;
+        }
+
+        /* ===================== 标题 ===================== */
+        h1 {
+            text-align: center;
+            margin: 20px 20px 26px;
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            color: #ea580c;
+            text-shadow: 0 2px 0 rgba(251, 146, 60, 0.16);
+        }
+
+        h1::after {
+            content: "";
+            display: block;
+            width: 72px;
+            height: 4px;
+            margin: 12px auto 0;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #fdba74, #fb923c, #f97316);
+        }
+
+        /* ===================== 顶部按钮区 ===================== */
+        h1 + div {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 28px;
+        }
+
+        button {
+            border: none;
+            font-family: inherit;
+            color: #ffffff;
+            cursor: pointer;
+        }
+
+        .top {
+            border-radius: 999px;
+            padding: 12px 30px;
+            margin: 0;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.6px;
+            transition: transform 0.18s ease,
+                        box-shadow 0.18s ease,
+                        background-image 0.18s ease;
+        }
+
+        .top:hover {
+            transform: translateY(-2px);
+        }
+
+        .top:active {
+            transform: translateY(0);
+        }
+
+        /* ===================== 按钮配色 ===================== */
+        .add {
+            background-color: #f97316;
+            background-image: linear-gradient(135deg, #fb923c, #f97316);
+            color: #ffffff;
+            box-shadow: 0 6px 16px rgba(249, 115, 22, 0.32);
+        }
+
+        .add:hover {
+            background-image: linear-gradient(135deg, #f97316, #ea580c);
+            box-shadow: 0 10px 22px rgba(249, 115, 22, 0.42);
+        }
+
+        .add:active {
+            background-image: linear-gradient(135deg, #ea580c, #c2410c);
+            box-shadow: 0 4px 10px rgba(249, 115, 22, 0.32);
+        }
+
+        .alter {
+            background-color: #fff4e6;
+            background-image: none;
+            color: #c2410c;
+            border: 1px solid #fdba74;
+            box-shadow: 0 2px 6px rgba(234, 88, 12, 0.10);
+        }
+
+        .alter:hover {
+            background-color: #ffedd5;
+            border-color: #fb923c;
+            color: #9a3412;
+            box-shadow: 0 5px 12px rgba(234, 88, 12, 0.20);
+        }
+
+        .alter:active {
+            background-color: #fed7aa;
+            box-shadow: 0 1px 4px rgba(234, 88, 12, 0.20);
+        }
+
+        .delete {
+            background-color: #ef4444;
+            background-image: linear-gradient(135deg, #f87171, #dc2626);
+            color: #ffffff;
+            box-shadow: 0 6px 16px rgba(220, 38, 38, 0.28);
+        }
+
+        .delete:hover {
+            background-image: linear-gradient(135deg, #ef4444, #b91c1c);
+            box-shadow: 0 10px 22px rgba(220, 38, 38, 0.38);
+        }
+
+        .delete:active {
+            background-image: linear-gradient(135deg, #dc2626, #991b1b);
+            box-shadow: 0 4px 10px rgba(220, 38, 38, 0.30);
+        }
+
+        /* ===================== 主表格 ===================== */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            background: #ffffff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 12px 32px rgba(234, 88, 12, 0.12),
+                        0 2px 6px rgba(234, 88, 12, 0.06);
+        }
+
+        thead {
+            font-weight: 700;
+            color: #ffffff;
+            background-color: #f97316;
+            background-image: linear-gradient(135deg, #fb923c 0%, #f97316 55%, #ea580c 100%);
+            letter-spacing: 0.5px;
+            font-size: 0.82rem;
+            text-transform: uppercase;
+        }
+
+        thead td {
+            padding: 15px 12px;
+            border-bottom: none;
+            color: #ffffff;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 12px;
+            text-align: center;
+            vertical-align: middle;
+            font-size: 0.9rem;
+            color: #5c4a3d;
+            border-bottom: 1px solid #fde8d2;
+        }
+
+        tbody tr {
+            transition: background-color 0.16s ease;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #fffaf4;
+        }
+
+        tbody tr:hover {
+            background-color: #ffedd5;
+        }
+
+        tbody tr:last-child td {
+            border-bottom: none;
+        }
+
+        /* 操作列按钮容器 */
+        td div {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            white-space: nowrap;
+        }
+
+        .form {
+            border-radius: 9px;
+            padding: 6px 14px;
+            margin: 0;
+            font-size: 0.78rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            transition: transform 0.16s ease,
+                        box-shadow 0.16s ease,
+                        background-color 0.16s ease,
+                        background-image 0.16s ease;
+        }
+
+        .form:hover {
+            transform: translateY(-1px);
+        }
+
+        .form:active {
+            transform: translateY(0);
+        }
+
+        /* 复选框 */
+        input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            margin: 0;
+            vertical-align: middle;
+            accent-color: #f97316;
+            cursor: pointer;
+        }
+
+        /* ===================== 添加/修改表单（浮动在表格上方） ===================== */
+        #formID {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+
+            width: min(480px, calc(100vw - 32px));
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            margin: 0;
+            padding: 28px 32px 32px;
+
+            background: #ffffff;
+            border: 1px solid #fed7aa;
+            border-radius: 18px;
+
+            box-shadow:
+                0 0 0 200vmax rgba(124, 45, 18, 0.30),
+                0 24px 64px rgba(234, 88, 12, 0.28),
+                0 4px 14px rgba(234, 88, 12, 0.10);
+
+            animation: formPop 0.22s ease-out;
+        }
+
+        @keyframes formPop {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -46%) scale(0.96);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        #formID::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        #formID::-webkit-scrollbar-thumb {
+            background: #fdba74;
+            border-radius: 999px;
+        }
+
+        #formID::-webkit-scrollbar-thumb:hover {
+            background: #fb923c;
+        }
+
+        #formID h1 {
+            margin: 0 0 22px;
+            font-size: 1.25rem;
+            letter-spacing: 0.5px;
+        }
+
+        #formID h1::after {
+            width: 48px;
+            height: 3px;
+            margin-top: 10px;
+        }
+
+        #addFood p {
+            margin: 14px 0 6px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            color: #9a3412;
+            text-transform: uppercase;
+        }
+
+        #addFood input[type="text"],
+        #addFood select {
+            width: 100%;
+            padding: 11px 13px;
+            font-family: inherit;
+            font-size: 0.92rem;
+            color: #4a3728;
+            background-color: #fffaf5;
+            border: 1px solid #fdba74;
+            border-radius: 10px;
+            outline: none;
+            transition: border-color 0.18s ease,
+                        box-shadow 0.18s ease,
+                        background-color 0.18s ease;
+        }
+
+        #addFood input[type="text"]::placeholder {
+            color: #d8b79a;
+        }
+
+        #addFood input[type="text"]:hover,
+        #addFood select:hover {
+            border-color: #fb923c;
+        }
+
+        #addFood input[type="text"]:focus,
+        #addFood select:focus {
+            background-color: #ffffff;
+            border-color: #f97316;
+            box-shadow: 0 0 0 4px rgba(249, 115, 22, 0.15);
+        }
+
+        #addFood button {
+            margin-top: 24px;
+            padding: 11px 26px;
+            border-radius: 10px;
+            font-size: 0.88rem;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            transition: transform 0.18s ease,
+                        box-shadow 0.18s ease,
+                        background-color 0.18s ease,
+                        background-image 0.18s ease;
+        }
+
+        #addFood button:first-of-type {
+            background-color: #f97316;
+            background-image: linear-gradient(135deg, #fb923c, #f97316);
+            color: #ffffff;
+            box-shadow: 0 6px 16px rgba(249, 115, 22, 0.32);
+        }
+
+        #addFood button:first-of-type:hover {
+            background-image: linear-gradient(135deg, #f97316, #ea580c);
+            box-shadow: 0 10px 22px rgba(249, 115, 22, 0.42);
+            transform: translateY(-2px);
+        }
+
+        #addFood button:first-of-type:active {
+            transform: translateY(0);
+            box-shadow: 0 4px 10px rgba(249, 115, 22, 0.30);
+        }
+
+        #addFood button:last-of-type {
+            background-color: #ffffff;
+            color: #c2410c;
+            border: 1px solid #fdba74;
+            box-shadow: 0 2px 6px rgba(234, 88, 12, 0.10);
+        }
+
+        #addFood button:last-of-type:hover {
+            background-color: #ffedd5;
+            border-color: #fb923c;
+            transform: translateY(-2px);
+        }
+
+        #addFood button:last-of-type:active {
+            transform: translateY(0);
+            background-color: #fed7aa;
+        }
+
+        /* ===================== 分页 ===================== */
+        #paginator {
+            margin-top: 46px;
+            display: flex;
+            justify-content: center;
+        }
+
+        #paginator table {
+            width: auto;
+            background: transparent;
+            border-radius: 0;
+            box-shadow: none;
+            border-spacing: 8px 0;
+        }
+
+        #paginator td {
+            min-width: 44px;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #c2410c;
+            background-color: #ffffff;
+            border: 1px solid #fed7aa;
+            border-radius: 12px;
+            cursor: pointer;
+            user-select: none;
+            box-shadow: 0 2px 6px rgba(234, 88, 12, 0.08);
+            transition: transform 0.16s ease,
+                        box-shadow 0.16s ease,
+                        background-color 0.16s ease,
+                        border-color 0.16s ease;
+        }
+
+        #paginator td:hover {
+            background-color: #ffedd5;
+            border-color: #fb923c;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(249, 115, 22, 0.22);
+        }
+
+        #paginator td.selected,
+        #paginator td.selected:hover {
+            color: #ffffff;
+            background-color: #f97316;
+            background-image: linear-gradient(135deg, #fb923c, #f97316);
+            border-color: #f97316;
+            box-shadow: 0 8px 18px rgba(249, 115, 22, 0.40);
+        }
+
+        /* ===================== 链接 ===================== */
+        a {
+            border-radius: 6px;
+            text-decoration: none;
+            padding: 2px 10px;
+            margin: 10px;
+            transition: color 0.16s ease;
+        }
+
+        a:link,
+        a:visited {
+            color: #ea580c;
+        }
+
+        a:hover {
+            color: #c2410c;
+        }
+
+        /* ===================== 响应式 ===================== */
+        @media (max-width: 720px) {
+            body {
+                padding: 28px 12px 56px;
+                font-size: 14px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .top {
+                padding: 10px 22px;
+                font-size: 0.85rem;
+            }
+
+            thead td {
+                padding: 12px 8px;
+                font-size: 0.72rem;
+            }
+
+            td {
+                padding: 10px 8px;
+                font-size: 0.8rem;
+            }
+
+            .form {
+                padding: 5px 10px;
+                font-size: 0.72rem;
+            }
+
+            #formID {
+                padding: 22px 20px 26px;
+                border-radius: 16px;
+            }
+
+            #paginator {
+                margin-top: 34px;
+            }
+
+            #paginator td {
+                min-width: 36px;
+                padding: 8px 10px;
+                font-size: 0.82rem;
+                border-radius: 10px;
+            }
+        }
+    </style>
+
+    <script src="jQuery.js"></script>
+    <script>
+        // 全局变量：当前页数据、当前页码
+        var currentFoodList = [];
+        var currentPage = 1;
+
+        function getFoodList(page) {
+            currentPage = page;
+            $.ajax({
+                type: "get",
+                url: "/food/getListByPage?currentPage=" + page,
+                success: function(result) {
+                    console.log(result);
+                    if (result != null) {
+                        currentFoodList = result.records;
+                        $("#tableBody").empty();
+                        var finalHtml = "";
+                        for (var food of result.records) {
+                            finalHtml += `
+                                <tr>
+                                    <td><input type="checkbox" class="rowCheckbox" value="${food.id}"></td>
+                                    <td>${food.id}</td>
+                                    <td>${food.foodName}</td>
+                                    <td>${food.count}</td>
+                                    <td>${food.price}</td>
+                                    <td>${food.origin}</td>
+                                    <td>${food.statusCN}</td>
+                                    <td><div>
+                                        <button type="button" class="form alter" onclick="alterFood(${food.id})">修改</button>
+                                        <button type="button" class="form delete" onclick="deleteFood(${food.id})">删除</button>
+                                    </div></td>
+                                </tr>`;
+                        }
+                        $("#tableBody").append(finalHtml);
+                    }
+                }
+            });
+        }
+        getFoodList(1);
+
+        // 显示添加表单（清空并设为添加模式）
+        function displayForm() {
+            $("#idID").val("");
+            $("#foodnameID").val("");
+            $("#countID").val("");
+            $("#priceID").val("");
+            $("#originID").val("");
+            $("#statusID").val("1");
+            $("#formID h1").text("添加食物");
+            $("#formID").css("display", "block");
+        }
+
+        // 显示修改表单（填充数据）
+        function alterFood(id) {
+            var food = currentFoodList.find(f => f.id === id);
+            if (!food) {
+                alert("未找到该食物信息");
+                return;
+            }
+            $("#idID").val(food.id);
+            $("#foodnameID").val(food.foodName);
+            $("#countID").val(food.count);
+            $("#priceID").val(food.price);
+            $("#originID").val(food.origin);
+            $("#statusID").val(food.status);
+            $("#formID h1").text("修改食物");
+            $("#formID").css("display", "block");
+        }
+
+        // 隐藏表单
+        function hideForm() {
+            $("#formID").css("display", "none");
+        }
+
+        // 提交表单（根据 id 判断添加或修改）
+        function submitFood() {
+            var id = $("#idID").val();
+            var url = id ? "/food/updateFood" : "/food/addFood";
+            var action = id ? "修改" : "添加";
+
+            $.ajax({
+                type: "post",
+                url: url,
+                data: $("#addFood").serialize(),
+                success: function(result) {
+                    if (result == "") {
+                        alert(action + "成功！");
+                        hideForm();
+                        getFoodList(currentPage);
+                    } else {
+                        console.log(result);
+                        alert(action + "失败：" + result);
+                    }
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        // 删除单个食物
+        function deleteFood(id) {
+            if (!confirm("确定要删除该食物吗？")) {
+                return;
+            }
+            $.ajax({
+                type: "post",
+                url: "/food/deleteFood",
+                data: { id: id },
+                success: function(result) {
+                    if (result == "") {
+                        alert("删除成功");
+                        getFoodList(currentPage);
+                    } else {
+                        alert("删除失败：" + result);
+                    }
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        }
+
+        // 批量删除
+        $(document).on("click", "#multiDeleteID", function() {
+            var ids = [];
+            $(".rowCheckbox:checked").each(function() {
+                ids.push($(this).val());
+            });
+            if (ids.length === 0) {
+                alert("请至少选择一项");
+                return;
+            }
+            if (!confirm("确定要删除选中的 " + ids.length + " 项吗？")) {
+                return;
+            }
+            $.ajax({
+                type: "post",
+                url: "/food/deleteFoods",
+                data: { ids: ids.join(",") },
+                success: function(result) {
+                    if (result == "") {
+                        alert("批量删除成功");
+                        getFoodList(currentPage);
+                    } else {
+                        alert("批量删除失败：" + result);
+                    }
+                },
+                error: function(error) {
+                    console.log(error);
+                }
+            });
+        });
+
+        // 分页相关函数保持不变
+        function selectPage(page) {
+            var id = "#table" + page;
+            $("#paginator td.selected").removeClass("selected");
+            $(id).addClass("selected");
+            history.pushState({}, "", "?currentPage=" + page);
+            getFoodList(page);
+        }
+
+        function decrease() {
+            var id = $("#paginator td.selected").attr("id");
+            var page = parseInt(id.substring(5), 10);
+            if (page == 1) {
+                getFoodList(1);
+            } else {
+                getFoodList(page - 1);
+                $("#paginator td.selected").removeClass("selected");
+                var newSelect = " #table" + (page - 1);
+                $(newSelect).addClass("selected");
+            }
+        }
+
+        function increase() {
+            var id = $("#paginator td.selected").attr("id");
+            var page = parseInt(id.substring(5), 10);
+            if (page == 5) {
+                getFoodList(5);
+            } else {
+                getFoodList(page + 1);
+                $("#paginator td.selected").removeClass("selected");
+                var newSelect = " #table" + (page + 1);
+                $(newSelect).addClass("selected");
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>食物列表</h1>
+    <div>
+        <button type="button" class="top add" id="addFoodID" onclick="displayForm()">添加食物</button>
+        <button type="button" class="top delete" id="multiDeleteID">批量删除</button>
+    </div>
+    <table>
+        <thead>
+            <td>选择</td>
+            <td>食物ID</td>
+            <td>名称</td>
+            <td>数量</td>
+            <td>价格</td>
+            <td>产地</td>
+            <td>状态</td>
+            <td>操作</td>
+        </thead>
+        <tbody id="tableBody">
+        </tbody>
+    </table>
+
+    <div id="formID">
+        <h1>添加食物</h1>
+        <form id="addFood">
+            <input type="hidden" name="id" id="idID">
+            <p>食物名称：</p>
+            <input type="text" name="foodName" id="foodnameID">
+            <p>数量：</p>
+            <input type="text" name="count" id="countID">
+            <p>价格：</p>
+            <input type="text" name="price" id="priceID">
+            <p>产地：</p>
+            <input type="text" name="origin" id="originID">
+            <p>状态：</p>
+            <select name="status" id="statusID">
+                <option value="0">无效</option>
+                <option value="1" selected>正常</option>
+                <option value="2">过期</option>
+            </select><br>
+            <button type="button" onclick="submitFood()">确认</button>
+            <button type="button" onclick="hideForm()">取消</button>
+        </form>
+    </div>
+
+    <div id="paginator">
+        <table>
+            <td onclick="decrease()"><</td>
+            <td onclick="selectPage(1)" id="table1" class="selected">1</td>
+            <td onclick="selectPage(2)" id="table2">2</td>
+            <td onclick="selectPage(3)" id="table3">3</td>
+            <td onclick="selectPage(4)" id="table4">4</td>
+            <td onclick="selectPage(5)" id="table5">5</td>
+            <td onclick="increase()">></td>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="cn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>login</title>
+    <style>
+        body {
+            background-image:
+                linear-gradient(180deg, #000000ff, #00000000, #00000000, #000000ff), url("mystia.png");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-attachment: fixed;
+            height: 95vh;
+            display: flex;
+            align-items: center;
+        }
+
+        #middle {
+            height: 500px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+        #title {
+            height: 500px;
+            flex: 2;
+            align-items: center;
+            display: flex;
+            
+        }
+        #titlebg {
+            height: 400px;
+            background-image:
+                linear-gradient(90deg, #00000000 0%, #000000aa 25%, #000000aa 75%, #00000000 100%);
+            justify-content: center;
+            display: flex;
+            flex-direction: column;
+            text-align: center;
+            width: 100%;
+            
+        }
+        h1 {
+            color: #ffffff;
+            
+        }
+        #welcome {
+            vertical-align: middle;
+            align-items: center;
+            font-size: 50px;
+            margin: 0px;
+            text-shadow: -4px 4px 3px #000000aa;
+            font-size: 60px;
+        }
+        #kitchen {
+            vertical-align: middle;
+            align-items: center;
+            margin: 0px;
+            font-size: 140px;
+            text-shadow: -10px 10px 6px #000000aa;
+            font-size: 100px;
+        }
+        #pink {
+            color: #ea5e83;
+        }
+        #loginArea {
+            height: 500px;
+            flex: 1;
+            display: flex;
+            align-items: center;
+        }
+        #loginForm {
+            background-color: #000000aa;
+            border-radius: 30px;
+            width: 400px;
+            height: 400px;
+            color: #ffffff;
+        }
+        #loginForm h1 {
+            text-align: center;
+            margin: 30px;
+        }
+        #foot {
+            position: fixed;
+            width: 100%;
+            bottom: 0px;
+            height: 40px;
+            color: #ffffff;
+            text-align: center;
+        }
+        p {
+            margin: 0px 10px 0px;
+        }
+        
+        input {
+            height: 40px;
+            width: 90%;
+            background-color: #000000aa;
+            border-style: none;
+            border-bottom: solid #ea5e83;
+            margin: 5px 10px 20px;
+            color: #ffffff;
+            font-size: 16px;
+            padding: 0px 10px 0px;
+        }
+        input:focus {
+            outline: none;
+        }
+        button {
+            background-color: #ffffff00;
+            border-radius: 5px;
+            border: solid #ea5e83;
+            color: #ea5e83;
+            font-size: 20px;
+            padding: 3px 20px;
+            margin: 0px 10px;
+        }
+        button:hover {
+            background-color: #ea5e83;
+            color: #ffffff;
+        }
+        button:active {
+            background-color: #af4763;
+            border-color: #8b354c;
+        }
+        
+        
+    </style>
+
+    <script src = "jQuery.js"></script>
+    <script>
+        function login() {
+            var username = $("#usernameID").val();
+            var password = $("#passwordID").val();
+            $.ajax({
+                type: "get",
+                url: "/user/login",
+                data: {
+                    username: username,
+                    password: password
+                },
+                success: function(result) {
+                    if (result) {
+                        location.href = "list.html";
+                    } else {
+                        alert("账号或密码错误！");
+                    }
+                }
+            });
+        }
+    </script>
+</head>
+<body>
+    <div id = "middle">
+        <div id = "title">
+            <div id = "titlebg">
+                <h1 id = "welcome">欢迎来到<span id = "pink">小夜雀</span>の</h1>
+                <h1 id = "kitchen">后厨管理系统</h1>
+            </div>
+        </div>
+        <div id = "loginArea">
+            <div id = "loginForm">
+                <h1>请登录</h1>
+                <p>用户名：</p>
+                <input type="text" name = "username" id = "usernameID">
+                <p>密码：</p>
+                <input type="password" name = "password" id = "passwordID"><br>
+                <button type = "button" id = "login" onclick="login()">登录</button>
+                <button type = "button" id = "signUp">注册</button>
+                <p>忘记密码？</p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
